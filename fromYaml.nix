@@ -158,6 +158,5 @@
 
   in
     make filtered (-1);
-in {
-  inherit parse;
-}
+in
+parse
