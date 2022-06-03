@@ -1,6 +1,10 @@
 /*
- This is a yaml parser.
- It's hacky but it seems to work.
+  This is a yaml parser.
+  This is the result of a lot of trial and error and does not implement the full
+  yaml spec, but it seems to be relatively efficient.
+  It can parse larger yaml files with 1MB+ without a problem (if those do not
+  make use of unsupported yaml features).
+  # TODO: add support for multi line strings
  */
 {lib ? (import <nixpkgs> {}).lib, ...}: let
   l = lib // builtins;
@@ -8,6 +12,9 @@
   parse = text: let
     lines = l.splitString "\n" text;
 
+    # filter out comments and empty lines
+    # TODO: filter out comments where there are spaces in front of th `#`
+    # TODO: filter out comments at the end of a line
     filtered =
       l.filter
       (line:
@@ -16,9 +23,10 @@
       )
       lines;
 
+    # extract indent, key, value, isListEntry for each line
     matched = l.map (line: matchLine line) filtered;
 
-    # Match each line to get: indent, key, value.
+    # Match each line to get: indent, key, value, isListEntry
     # If a key value expression spans multiple lines,
     # the value of the current line will be defined null
     matchLine = line: let
@@ -28,12 +36,11 @@
       m2 = l.match ''([ -]*)(.*):$'' line;
       # is the line starting a new list element?
       m3 = l.match ''([[:space:]]*-[[:space:]]+)(.*)'' line;
-      # m3Key =  l.match ''(.*): (.*)'' line;
-      isListEntry = m3 != null;
     in
+      # handle list elements (lines starting with ' -')
       if m3 != null
       then rec {
-        inherit isListEntry;
+        isListEntry = true;
         indent = (l.stringLength (l.elemAt m3 0)) / 2;
         key =
           if m1 != null
@@ -44,25 +51,37 @@
           then l.elemAt m1 2
           else l.elemAt m3 1;
       }
+      # handle single line key -> val assignments
       else if m1 != null
       then {
-        inherit isListEntry;
+        isListEntry = false;
         indent = (l.stringLength (l.elemAt m1 0)) / 2;
         key = l.elemAt m1 1;
         value = l.elemAt m1 2;
       }
+      # handle multi-line key -> object assignment
       else if m2 != null
       then {
-        inherit isListEntry;
+        isListEntry = false;
         indent = (l.stringLength (l.elemAt m2 0)) / 2;
         key = l.elemAt m2 1;
         value = null;
       }
       else null;
 
+    # store total number of lines
     numLines = l.length filtered;
 
-    # convert yaml lines to json lines
+    /*
+      Process line by line via a deep recursion, so that this function is
+      executed once on each line.
+      It is each iterations `responsibility` to traverse through it's children
+      (for example list elements under a key), and merge/update these correctly
+      with itself.
+      By looking at the regex result of the current line and the next line,
+      we know what type of structure the current line creates, if it has any
+      children, and what is the type of the children's structure.
+    */
     make = lines: i: let
       line = l.elemAt filtered i;
       mNext = l.elemAt matched (i + 1);
