@@ -4,6 +4,7 @@
   yaml spec, but it seems to be relatively efficient.
   It can parse larger yaml files with 1MB+ without a problem (if those do not
   make use of unsupported yaml features).
+  EDIT: It seems to do weird things with some documents. This is definitely not reliable!
   # TODO: add support for multi line strings
  */
 {lib ? (import <nixpkgs> {}).lib, ...}: let
