@@ -7,7 +7,10 @@
   # TODO: add support for multi line strings
  */
 {lib ? (import <nixpkgs> {}).lib, ...}: let
-  l = lib // builtins;
+  l = lib // builtins // {
+    # I'm going to cry on Nix's naming convention
+    foldl = lib.foldl or lib.foldl' or builtins.foldl or builtins.foldl';
+  };
 
   parse = text: let
     lines = l.splitString "\n" text;
