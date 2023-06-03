@@ -58,7 +58,7 @@
       if m3 != null
       then {
         isListEntry = true;
-        indent = (l.stringLength (l.elemAt m3 0)) / 2;
+        indent = l.stringLength (l.elemAt m3 0);
         key =
           if m1 != null
           then l.elemAt m1 1
@@ -73,7 +73,7 @@
       else if m1 != null
       then {
         isListEntry = false;
-        indent = (l.stringLength (l.elemAt m1 0)) / 2;
+        indent = l.stringLength (l.elemAt m1 0);
         key = l.elemAt m1 1;
         value = parseValue (l.elemAt m1 2);
       }
@@ -81,7 +81,7 @@
       else if m2 != null
       then {
         isListEntry = false;
-        indent = (l.stringLength (l.elemAt m2 0)) / 2;
+        indent = l.stringLength (l.elemAt m2 0);
         key = l.elemAt m2 1;
         value = null;
       }
