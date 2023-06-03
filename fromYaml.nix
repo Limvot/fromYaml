@@ -35,15 +35,15 @@
     # the value of the current line will be defined null
     matchLine = line: let
       # single line key value statement
-      m1 = l.match ''([ -]*)(.*): (.*)'' line;
+      m1 = l.match ''([ -]*)(.*):[[:space:]]+(.+)'' line;
       # multi line key value (line contains only key)
-      m2 = l.match ''([ -]*)(.*):$'' line;
+      m2 = l.match ''([ -]*)(.*):[[:space:]]*'' line;
       # is the line starting a new list element?
       m3 = l.match ''([[:space:]]*-[[:space:]]+)(.*)'' line;
     in
       # handle list elements (lines starting with ' -')
       if m3 != null
-      then rec {
+      then {
         isListEntry = true;
         indent = (l.stringLength (l.elemAt m3 0)) / 2;
         key =
