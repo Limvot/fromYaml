@@ -13,6 +13,19 @@
     foldl = lib.foldl or lib.foldl' or builtins.foldl or builtins.foldl';
   };
 
+  parseValue = value: let
+    is = re: l.match re value != null;
+    contentOf = re: l.elemAt (l.match re value) 0;
+    singlueQuotedString = "'(.*?)'[[:space:]]*";
+    doubleQuotedString = ''"(.*?)"[[:space:]]*'';
+  in
+    if is singlueQuotedString then
+      contentOf singlueQuotedString
+    else if is doubleQuotedString then
+      contentOf doubleQuotedString
+    else
+      value;
+
   parse = text: let
     lines = l.splitString "\n" text;
 
@@ -50,10 +63,11 @@
           if m1 != null
           then l.elemAt m1 1
           else null;
-        value =
+        value = parseValue (
           if m1 != null
           then l.elemAt m1 2
-          else l.elemAt m3 1;
+          else l.elemAt m3 1
+        );
       }
       # handle single line key -> val assignments
       else if m1 != null
@@ -61,7 +75,7 @@
         isListEntry = false;
         indent = (l.stringLength (l.elemAt m1 0)) / 2;
         key = l.elemAt m1 1;
-        value = l.elemAt m1 2;
+        value = parseValue (l.elemAt m1 2);
       }
       # handle multi-line key -> object assignment
       else if m2 != null
@@ -87,7 +101,6 @@
       children, and what is the type of the children's structure.
     */
     make = lines: i: let
-      line = l.elemAt filtered i;
       mNext = l.elemAt matched (i + 1);
       m = l.elemAt matched i;
       currIndent = if i == -1 then -1 else m.indent;
