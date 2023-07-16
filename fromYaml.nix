@@ -13,14 +13,15 @@
     foldl = lib.foldl or lib.foldl' or builtins.foldl or builtins.foldl';
   };
 
-  parseValue = value: let
+  parseValue = value': let
+    value = builtins.elemAt (builtins.match "(^[^#]*)($|#.*$)" value') 0;  # from Misterio77/nix-colors
     is = re: l.match re value != null;
     contentOf = re: l.elemAt (l.match re value) 0;
-    singlueQuotedString = "'(.*?)'[[:space:]]*";
-    doubleQuotedString = ''"(.*?)"[[:space:]]*'';
+    singleQuotedString = "'([^']*)'[[:space:]]*";
+    doubleQuotedString = ''"([^"]*)"[[:space:]]*'';
   in
-    if is singlueQuotedString then
-      contentOf singlueQuotedString
+    if is singleQuotedString then
+      contentOf singleQuotedString
     else if is doubleQuotedString then
       contentOf doubleQuotedString
     else
