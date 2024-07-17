@@ -17,13 +17,17 @@
     value = builtins.elemAt (builtins.match "(^[^#]*)($|#.*$)" value') 0;  # from Misterio77/nix-colors
     is = re: l.match re value != null;
     contentOf = re: l.elemAt (l.match re value) 0;
-    singleQuotedString = "'([^']*)'[[:space:]]*";
-    doubleQuotedString = ''"([^"]*)"[[:space:]]*'';
+    singleQuotedString = "[[:space:]]*'([^']*)'[[:space:]]*";
+    doubleQuotedString = ''[[:space:]]*"([^"]*)"[[:space:]]*'';
+    abbreviatedList = ''[[:space:]]*\[(.*)][[:space:]]*'';
+    parseAbbreviatedListContent = c: map parseValue (l.splitString "," c);
   in
     if is singleQuotedString then
       contentOf singleQuotedString
     else if is doubleQuotedString then
       contentOf doubleQuotedString
+    else if is abbreviatedList then
+      parseAbbreviatedListContent (contentOf abbreviatedList)
     else
       value;
 
