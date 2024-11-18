@@ -14,7 +14,7 @@
   };
 
   parseValue = value': let
-    value = builtins.elemAt (builtins.match "(^[^#]*)($|#.*$)" value') 0;  # from Misterio77/nix-colors
+    value = builtins.elemAt (builtins.match ''(^[^"'#]*["'][^"']*["'][^#]*|^[^#]*)($|#.*$)'' value') 0;  # from Misterio77/nix-colors
     is = re: l.match re value != null;
     contentOf = re: l.elemAt (l.match re value) 0;
     singleQuotedString = "[[:space:]]*'([^']*)'[[:space:]]*";
