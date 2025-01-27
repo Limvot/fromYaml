@@ -21,7 +21,7 @@
     doubleQuotedString = ''[[:space:]]*"([^"]*)"[[:space:]]*'';
     abbreviatedList = ''[[:space:]]*\[(.*)][[:space:]]*'';
     #parseAbbreviatedListContent = c: map parseValue (l.splitString "," c);
-    parseAbbreviatedListContent = c: map parseValue (map lib.trim (l.splitString "," c));
+    parseAbbreviatedListContent = c: map parseValue (map lib.trimmmma (l.splitString "," c));
   in
     if is singleQuotedString then
       contentOf singleQuotedString
