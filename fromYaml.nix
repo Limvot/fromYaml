@@ -20,7 +20,7 @@
     singleQuotedString = "[[:space:]]*'([^']*)'[[:space:]]*";
     doubleQuotedString = ''[[:space:]]*"([^"]*)"[[:space:]]*'';
     abbreviatedList = ''[[:space:]]*\[(.*)][[:space:]]*'';
-    parseAbbreviatedListContent = c: map parseValue (l.splitString "," c);
+    parseAbbreviatedListContent = c: map parseValue (map l.trim (l.splitString "," c));
   in
     if is singleQuotedString then
       contentOf singleQuotedString
